@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>user-crud</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="shortcut icon" type="image/x-icon" href="https://loopback.io/favicon.ico">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js"
+    integrity="sha384-Xe+8cL9oJa6tN/veChSP7q+mnSPaj5Bcu9mPX5F5xIGE0DVittaqT5lorf0EI7Vk"
+    crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.min.js"
+    integrity="sha384-kjU+l4N0Yf4ZOJErLsIcvOU2qSb74wXpOhqTvwVx3OElZRweTnQ6d31fXEoRD1Jy"
+    crossorigin="anonymous"></script>
+  <script defer src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script defer src="https://unpkg.com/vue@3"></script>
+  <style>
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    /* Firefox */
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <form @submit.prevent="onSubmit">
+    <div class="input-group">
+      <span class="input-group-text">First and last name</span>
+      <input v-model="name" type="text" aria-label="First name" class="form-control" required>
+      <input v-model="lastname" type="text" aria-label="Last name" class="form-control" required>
+    </div>
+    <div class="input-group">
+      <span class="input-group-text">is militar</span>
+      <input v-model="is_militar" type="text" aria-label="is militar" class="form-control" required>
+      <span class="input-group-text">is temporal</span>
+      <input v-model="is_temporal" type="text" aria-label="is temporal" class="form-control" required>
+    </div>
+    <div class="input-group">
+      <span class="input-group-text">address</span>
+      <input v-model="address" type="text" aria-label="address" class="form-control" required>
+      <span class="input-group-text">phone</span>
+      <input v-model="phone" type="number" aria-label="phone" class="form-control" required>
+    </div>
+    <div class="input-group">
+      <span class="input-group-text">emergency name</span>
+      <input v-model="emergency_name" type="text" aria-label="emergency name" class="form-control" required>
+      <span class="input-group-text">emergency phone</span>
+      <input v-model="emergency_phone" type="number" aria-label="emergency phone" class="form-control" required>
+    </div>
+    <div class="input-group">
+      <span class="input-group-text">document number</span>
+      <input v-model="document_number" type="number" aria-label="document number" class="form-control" required>
+      <span class="input-group-text">document type</span>
+      <input v-model="document_type" type="text" aria-label="document type" class="form-control" required>
+    </div>
+    <div class="input-group">
+      <span class="input-group-text">expedition place</span>
+      <input v-model="expedition_place" type="text" aria-label="expedition place" class="form-control" required>
+      <span class="input-group-text">expedition date</span>
+      <input v-model="expedition_date" type="date" aria-label="expedition date" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-primary mb-3">Save</button>
+  </form>
+
+  <div id="app">
+    <span v-if="msg" class="badge text-bg-danger">{{ msg }}</span>
+    <ul class="list-group">
+      <li v-for="users in users" class="list-group-item">
+        <span>{{ user.name }}</span><span class="ml-2">{{ user.lastname }}</span>
+      </li>
+    </ul>
+  </div>
+
+  <script>
+    const { createApp } = Vue
+
+    createApp({
+      data() {
+        return {
+          users: null,
+          msg: null,
+          name: '',
+          lastname: '',
+          is_temporal: '',
+          is_militar: '',
+          address: '',
+          phone: '',
+          emergency_name: '',
+          emergency_phone: '',
+          document_type: '',
+          document_number: '',
+          expetition_date: new Date(),
+          expedition_place: ''
+        }
+      },
+      mounted() {
+        axios
+          .get('http://localhost:3000/app-users')
+          .then(res => this.users = res)
+          .catch(err => this.msg = `${err}`)
+      },
+      methods() {
+        return {
+          onSubmit() {
+            const user = {
+              name: this.name,
+              lastname: this.lastname,
+              is_temporal: this.is_temporal,
+              is_militar: this.is_militar,
+              time_created: new Date(),
+              contact_info: {
+                emergency_name: this.emergency_name,
+                emergency_phone: this.emergency_phone,
+                address: this.address,
+                phone: this.phone,
+              },
+              document_type: {
+                document_number: Number(this.document_number),
+                document_type: this.document_type,
+                expedition_place: this.expedition_place,
+                expetition_date: new Date(this.expedition_date)
+              }
+            }
+            postUser(user)
+          },
+          postUser(data) {
+            axios
+              .post(
+                'http://localhost:3000/app-users', {
+                ...data,
+                id: 1,
+                time_created: new Date()
+              })
+              .then(
+                res => res.statusCode == 200
+                  ? refresh()
+                  : msg = 'Error al guardar los datos'
+              )
+              .catch(err => this.msg = `${err}`)
+          },
+          refresh() {
+            window.location = "/"
+          }
+        }
+      }
+    }).mount('#app')
+  </script>
+
+
+</body>
+
+</html>

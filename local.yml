@@ -1,0 +1,19 @@
+services:
+  mongo:
+    container_name: mongo
+    image: amd64/mongo:4.4-focal
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo
+      MONGO_INITDB_DATABASE: mongo
+  app:
+    container_name: app
+    build:
+      context: .
+      dockerfile: Containerfile
+    ports:
+      - 3000:3000
+    depends_on:
+      - mongo
